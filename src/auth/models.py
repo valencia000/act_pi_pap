@@ -1,11 +1,10 @@
-# models.py
+from sqlalchemy import Column, Integer, String
+from core.database import Base
 
-from pydantic import BaseModel
-
-class Tarea(BaseModel):
-    id: int
-    titulo: str
-    completado: bool = False
-
-class TareaCreate(BaseModel):
-    titulo: str
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String, default="user")  # admin o user
