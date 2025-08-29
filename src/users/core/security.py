@@ -1,30 +1,18 @@
-# security.py
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta
 from jose import JWTError, jwt
+from passlib.context import CryptContext
+from core.config import settings
 
-# Clave secreta para firmar los tokens (en producción, guárdala en variables de entorno)
-SECRET_KEY = "mi_clave_secreta_super_segura"
-ALGORITHM = "HS256"
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Simulación de un esquema de autenticación por token
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
-# Función para verificar el token y extraer el usuario
-def verificar_token(token: str = Depends(oauth2_scheme)):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        usuario = payload.get("sub")
-        if usuario is None:
-            raise credenciales_invalidas()
-        return usuario
-    except JWTError:
-        raise credenciales_invalidas()
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
-def credenciales_invalidas():
-    return HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Credenciales inválidas",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+def get_password_hash(password):
+    return pwd_context.hash(password)
