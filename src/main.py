@@ -7,15 +7,15 @@ from auth.router import router as auth_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="Proyecto Integrador API",
-    description="API para el proyecto integrador de Juan Valencia",
+    title="Proyecto Integrador API - Juan Valencia",
+    description="API para el proyecto integrador del grupo PAP-Tarde",
     version="1.0.0"
 )
 
-# Configurar CORS para permitir conexiones desde el frontend
+# Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especifica los dominios permitidos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,12 +27,8 @@ app.include_router(auth_router)
 @app.get("/")
 def read_root():
     return {
-        "message": "Bienvenido al Proyecto Integrador API",
-        "version": "1.0.0",
-        "author": "Juan Valencia Moreno",
-        "grupo": "pap-tarde"
+        "message": "Proyecto Integrador API - Juan Valencia Moreno",
+        "identificacion": "1025761171",
+        "grupo": "pap-tarde",
+        "status": "funcionando"
     }
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
