@@ -3,7 +3,6 @@ uvicorn
 sqlalchemy
 alembic
 python-dotenv
-passlib[bcrypt]
-python-jose[cryptography]
+passlib(bcrypt)
+python-jose(cryptography)
 pydantic
-
