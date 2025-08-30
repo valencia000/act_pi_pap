@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from core.database import Base, engine
-from auth.router import router as auth_router
+from src.auth.router import router as auth_router
+from src.auth.router import router as auth_router  # ← Cambié la importación
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
