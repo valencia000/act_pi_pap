@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.auth.router import router as auth_router
-from src.auth.router import router as auth_router  # ← Cambié la importación
+from src.database import Base, engine
 
-# Crear las tablas en la base de datos
+# Crear tablas en DB
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -12,17 +12,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configurar CORS para permitir conexiones desde el frontend
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especifica los dominios permitidos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Incluir rutas
-app.include_router(auth_router)
+# Rutas Auth
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 
 @app.get("/")
 def read_root():
