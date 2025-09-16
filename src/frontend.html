@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro De Personas</title>
+  <title>Sistema Integrado - PQRS y Autenticación</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
@@ -43,20 +43,41 @@
       background: rgba(255,255,255,0.3) !important;
       border-bottom: 2px solid white;
     }
-    input {
+    input, select, textarea {
       transition: all 0.3s ease;
     }
-    input:focus {
+    input:focus, select:focus, textarea:focus {
       box-shadow: 0 0 10px rgba(255,255,255,0.6);
     }
+    .pqrs-item {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    .pqrs-item:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .badge-peticion { background: rgba(59, 130, 246, 0.8); color: white; }
+    .badge-queja { background: rgba(239, 68, 68, 0.8); color: white; }
+    .badge-reclamo { background: rgba(245, 101, 101, 0.8); color: white; }
+    .badge-sugerencia { background: rgba(34, 197, 94, 0.8); color: white; }
   </style>
 </head>
 <body class="min-h-screen">
   <div x-data="app()" class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="text-center mb-10">
-      <h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">🚀 Proyecto Integrador API</h1>
-      <p class="text-white opacity-90 text-lg">Registro De Personas</p>
+      <h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">🚀 Sistema Integrado</h1>
+      <p class="text-white opacity-90 text-lg">Autenticación y PQRS</p>
     </div>
 
     <!-- Notification -->
@@ -71,38 +92,46 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="glass-card p-2 mb-8 flex justify-center space-x-4">
+    <div class="glass-card p-2 mb-8 flex flex-wrap justify-center space-x-2 md:space-x-4">
       <button @click="currentTab = 'login'"
               :class="currentTab === 'login' ? 'tab-active' : ''"
-              class="py-2 px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20">
-        Iniciar Sesión
+              class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
+        🔑 Iniciar Sesión
       </button>
       <button @click="currentTab = 'register'"
               :class="currentTab === 'register' ? 'tab-active' : ''"
-              class="py-2 px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20">
-        Registrarse
+              class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
+        📝 Registrarse
       </button>
       <button @click="currentTab = 'dashboard'"
               :disabled="!isAuthenticated"
               :class="[currentTab === 'dashboard' ? 'tab-active' : '', !isAuthenticated ? 'opacity-50 cursor-not-allowed' : '']"
-              class="py-2 px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20">
-        Dashboard
+              class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
+        🏠 Dashboard
+      </button>
+      <button @click="currentTab = 'pqrs'"
+              :disabled="!isAuthenticated"
+              :class="[currentTab === 'pqrs' ? 'tab-active' : '', !isAuthenticated ? 'opacity-50 cursor-not-allowed' : '']"
+              class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
+        📋 PQRS
       </button>
     </div>
 
     <!-- Login -->
-    <div x-show="currentTab === 'login'" x-transition class="glass-card p-8">
+    <div x-show="currentTab === 'login'" x-transition class="glass-card p-8 max-w-md mx-auto">
       <h2 class="text-2xl font-bold text-white mb-6 text-center">🔑 Iniciar Sesión</h2>
       <form @submit.prevent="login()" class="space-y-6">
         <div>
           <label class="block text-white text-sm font-medium mb-2">Email</label>
           <input type="email" x-model="loginForm.email" required
-                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-100">
+                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-100"
+                 placeholder="tu@email.com">
         </div>
         <div>
           <label class="block text-white text-sm font-medium mb-2">Contraseña</label>
           <input type="password" x-model="loginForm.password" required
-                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-100">
+                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-100"
+                 placeholder="••••••••">
         </div>
         <button type="submit" :disabled="loading"
                 class="w-full btn-gradient text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50">
@@ -119,23 +148,26 @@
     </div>
 
     <!-- Register -->
-    <div x-show="currentTab === 'register'" x-transition class="glass-card p-8">
+    <div x-show="currentTab === 'register'" x-transition class="glass-card p-8 max-w-md mx-auto">
       <h2 class="text-2xl font-bold text-white mb-6 text-center">📝 Crear Cuenta</h2>
       <form @submit.prevent="register()" class="space-y-6">
         <div>
           <label class="block text-white text-sm font-medium mb-2">Usuario</label>
           <input type="text" x-model="registerForm.username" required
-                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                 placeholder="Tu nombre de usuario">
         </div>
         <div>
           <label class="block text-white text-sm font-medium mb-2">Email</label>
           <input type="email" x-model="registerForm.email" required
-                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                 placeholder="tu@email.com">
         </div>
         <div>
           <label class="block text-white text-sm font-medium mb-2">Contraseña</label>
           <input type="password" x-model="registerForm.password" required minlength="6"
-                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                 class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                 placeholder="Mínimo 6 caracteres">
         </div>
         <button type="submit" :disabled="loading"
                 class="w-full btn-gradient text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50">
@@ -148,177 +180,387 @@
     <!-- Dashboard -->
     <div x-show="currentTab === 'dashboard'" x-transition class="space-y-6">
       <div class="glass-card p-6">
-        <div class="flex justify-between items-center">
-          <div>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div class="mb-4 md:mb-0">
             <h2 class="text-2xl font-bold text-white mb-2">🎉 Bienvenido/a</h2>
-            <div x-show="user" class="text-white opacity-90">
+            <div x-show="user" class="text-white opacity-90 space-y-1">
               <p><strong>Usuario:</strong> <span x-text="user?.username"></span></p>
               <p><strong>Email:</strong> <span x-text="user?.email"></span></p>
               <p><strong>Rol:</strong> <span x-text="user?.role"></span></p>
               <p><strong>Desde:</strong> <span x-text="formatDate(user?.created_at)"></span></p>
             </div>
           </div>
-          <button @click="logout()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
-            Cerrar Sesión
-          </button>
+          <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <button @click="currentTab = 'pqrs'" class="btn-gradient text-white font-bold py-2 px-4 rounded-lg">
+              📋 Ir a PQRS
+            </button>
+            <button @click="logout()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+              🚪 Cerrar Sesión
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="glass-card p-6 text-center text-white">
-          <h3 class="text-lg font-bold">⚡ API Activa</h3>
-          <p>Todo funciona correctamente</p>
+          <div class="text-4xl mb-2">⚡</div>
+          <h3 class="text-lg font-bold">API Activa</h3>
+          <p class="text-sm opacity-80">Todo funciona correctamente</p>
         </div>
         <div class="glass-card p-6 text-center text-white">
-          <h3 class="text-lg font-bold">💾 Base de datos</h3>
-          <p>SQLite conectada</p>
+          <div class="text-4xl mb-2">💾</div>
+          <h3 class="text-lg font-bold">Base de datos</h3>
+          <p class="text-sm opacity-80">SQLite conectada</p>
+        </div>
+        <div class="glass-card p-6 text-center text-white">
+          <div class="text-4xl mb-2">📋</div>
+          <h3 class="text-lg font-bold">PQRS</h3>
+          <p class="text-sm opacity-80">Sistema integrado</p>
         </div>
       </div>
 
       <div class="glass-card p-6 text-center">
-        <h3 class="text-xl font-bold text-white mb-4">📖 Documentación</h3>
-        <a href="http://localhost:8000/docs" target="_blank"
-           class="btn-gradient text-white font-bold py-2 px-6 rounded-lg mr-4">
-          Swagger UI
-        </a>
-        <a href="http://localhost:8000/redoc" target="_blank"
-           class="bg-white bg-opacity-20 hover:bg-opacity-40 text-white font-bold py-2 px-6 rounded-lg">
-          ReDoc
-        </a>
+        <h3 class="text-xl font-bold text-white mb-4">📖 Documentación de la API</h3>
+        <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+          <a href="http://localhost:8000/docs" target="_blank"
+             class="btn-gradient text-white font-bold py-2 px-6 rounded-lg inline-block">
+            📚 Swagger UI
+          </a>
+          <a href="http://localhost:8000/redoc" target="_blank"
+             class="bg-white bg-opacity-20 hover:bg-opacity-40 text-white font-bold py-2 px-6 rounded-lg inline-block">
+            📖 ReDoc
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PQRS System -->
+    <div x-show="currentTab === 'pqrs'" x-transition class="space-y-6">
+      <div class="glass-card p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+          <h2 class="text-2xl font-bold text-white mb-4 md:mb-0">📋 Sistema PQRS</h2>
+          <div class="flex space-x-2">
+            <button @click="showPqrsForm = !showPqrsForm" 
+                    :class="showPqrsForm ? 'bg-red-500 hover:bg-red-600' : 'btn-gradient'"
+                    class="text-white font-bold py-2 px-4 rounded-lg">
+              <span x-show="!showPqrsForm">➕ Nuevo PQRS</span>
+              <span x-show="showPqrsForm">❌ Cancelar</span>
+            </button>
+            <button @click="fetchPQRS()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+              🔄 Actualizar
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulario PQRS -->
+        <div x-show="showPqrsForm" x-transition class="mb-6 p-6 bg-white bg-opacity-10 rounded-lg">
+          <h3 class="text-xl font-bold text-white mb-4" x-text="editingPqrs ? '✏️ Editar PQRS' : '📝 Crear Nuevo PQRS'"></h3>
+          <form @submit.prevent="submitPqrs()" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-white text-sm font-medium mb-2">Nombre</label>
+                <input type="text" x-model="pqrsForm.nombre_usuario" required
+                       class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                       placeholder="Tu nombre completo">
+              </div>
+              <div>
+                <label class="block text-white text-sm font-medium mb-2">Email</label>
+                <input type="email" x-model="pqrsForm.email" required
+                       class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                       placeholder="tu@email.com">
+              </div>
+            </div>
+            <div>
+              <label class="block text-white text-sm font-medium mb-2">Tipo de PQRS</label>
+              <select x-model="pqrsForm.tipo" required
+                      class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                <option value="">Selecciona un tipo</option>
+                <option value="Petición">📝 Petición</option>
+                <option value="Queja">😤 Queja</option>
+                <option value="Reclamo">⚠️ Reclamo</option>
+                <option value="Sugerencia">💡 Sugerencia</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-white text-sm font-medium mb-2">Mensaje</label>
+              <textarea x-model="pqrsForm.mensaje" required rows="4"
+                        class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                        placeholder="Describe detalladamente tu petición, queja, reclamo o sugerencia..."></textarea>
+            </div>
+            <div class="flex space-x-4">
+              <button type="submit" :disabled="loading"
+                      class="btn-gradient text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50">
+                <span x-show="!loading" x-text="editingPqrs ? '✏️ Actualizar PQRS' : '📤 Enviar PQRS'"></span>
+                <span x-show="loading">Procesando...</span>
+              </button>
+              <button type="button" @click="cancelPqrsForm()" 
+                      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg">
+                ❌ Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de PQRS -->
+        <div class="space-y-4">
+          <template x-for="pqrs in pqrsList" :key="pqrs.id">
+            <div class="pqrs-item p-4">
+              <div class="flex flex-col md:flex-row justify-between items-start">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <span class="badge" 
+                          :class="{
+                            'badge-peticion': pqrs.tipo === 'Petición',
+                            'badge-queja': pqrs.tipo === 'Queja',
+                            'badge-reclamo': pqrs.tipo === 'Reclamo',
+                            'badge-sugerencia': pqrs.tipo === 'Sugerencia'
+                          }"
+                          x-text="pqrs.tipo"></span>
+                    <span class="text-white font-semibold" x-text="pqrs.nombre_usuario"></span>
+                    <span class="text-gray-200 text-sm">(<span x-text="pqrs.email"></span>)</span>
+                  </div>
+                  <p class="text-white mb-2" x-text="pqrs.mensaje"></p>
+                  <p class="text-gray-300 text-xs">
+                    📅 <span x-text="formatDate(pqrs.fecha)"></span>
+                  </p>
+                </div>
+                <div class="flex space-x-2 mt-4 md:mt-0">
+                  <button @click="editPqrs(pqrs)" 
+                          class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded">
+                    ✏️ Editar
+                  </button>
+                  <button @click="deletePqrs(pqrs.id)" 
+                          class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded">
+                    🗑️ Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </template>
+          <div x-show="pqrsList.length === 0" class="text-center text-white opacity-80 py-8">
+            <div class="text-4xl mb-4">📋</div>
+            <p>No hay PQRS registradas aún.</p>
+            <p class="text-sm">Haz clic en "Nuevo PQRS" para crear la primera.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <script>
+    function app() {
+      return {
+        currentTab: 'login',
+        loading: false,
+        isAuthenticated: false,
+        user: null,
+        token: null,
+        showPqrsForm: false,
+        editingPqrs: false,
+        pqrsList: [],
+        notification: {
+          show: false,
+          message: '',
+          type: 'success'
+        },
+        loginForm: {
+          email: '',
+          password: ''
+        },
+        registerForm: {
+          username: '',
+          email: '',
+          password: ''
+        },
+        pqrsForm: {
+          nombre_usuario: '',
+          email: '',
+          tipo: '',
+          mensaje: ''
+        },
 
+        init() {
+          // Configurar axios con la URL base de la API
+          axios.defaults.baseURL = 'http://localhost:8000';
+          
+          // Verificar si hay token guardado
+          this.token = localStorage.getItem('token');
+          if (this.token) {
+            this.setAuthHeader(this.token);
+            this.getCurrentUser();
+          }
+          
+          // Cargar PQRS al iniciar
+          this.fetchPQRS();
+        },
 
+        setAuthHeader(token) {
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        },
 
-    <script>
-        function app() {
-            return {
-                currentTab: 'login',
-                loading: false,
-                isAuthenticated: false,
-                user: null,
-                token: localStorage.getItem('token'),
-                notification: {
-                    show: false,
-                    message: '',
-                    type: 'success'
-                },
-                loginForm: {
-                    email: '',
-                    password: ''
-                },
-                registerForm: {
-                    username: '',
-                    email: '',
-                    password: ''
-                },
+        async login() {
+          this.loading = true;
+          try {
+            const response = await axios.post('/auth/login', this.loginForm);
+            this.token = response.data.access_token;
+            localStorage.setItem('token', this.token);
+            this.setAuthHeader(this.token);
+            
+            await this.getCurrentUser();
+            this.currentTab = 'dashboard';
+            this.showNotification('¡Inicio de sesión exitoso!', 'success');
+            
+            // Limpiar formulario
+            this.loginForm = { email: '', password: '' };
+          } catch (error) {
+            console.error('Login error:', error);
+            this.showNotification(
+              error.response?.data?.detail || 'Error al iniciar sesión',
+              'error'
+            );
+          }
+          this.loading = false;
+        },
 
-                init() {
-                    // Configurar axios con la URL base de la API
-                    axios.defaults.baseURL = 'http://localhost:8000';
-                    
-                    if (this.token) {
-                        this.setAuthHeader(this.token);
-                        this.getCurrentUser();
-                    }
-                },
+        async register() {
+          this.loading = true;
+          try {
+            await axios.post('/auth/register', this.registerForm);
+            this.showNotification('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.', 'success');
+            this.currentTab = 'login';
+            
+            // Limpiar formulario
+            this.registerForm = { username: '', email: '', password: '' };
+          } catch (error) {
+            console.error('Register error:', error);
+            this.showNotification(
+              error.response?.data?.detail || 'Error al crear la cuenta',
+              'error'
+            );
+          }
+          this.loading = false;
+        },
 
-                setAuthHeader(token) {
-                    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                },
+        async getCurrentUser() {
+          try {
+            const response = await axios.get('/auth/me');
+            this.user = response.data;
+            this.isAuthenticated = true;
+          } catch (error) {
+            console.error('Get user error:', error);
+            this.logout();
+          }
+        },
 
-                async login() {
-                    this.loading = true;
-                    try {
-                        const response = await axios.post('/auth/login', this.loginForm);
-                        this.token = response.data.access_token;
-                        localStorage.setItem('token', this.token);
-                        this.setAuthHeader(this.token);
-                        
-                        await this.getCurrentUser();
-                        this.currentTab = 'dashboard';
-                        this.showNotification('¡Inicio de sesión exitoso!', 'success');
-                        
-                        // Limpiar formulario
-                        this.loginForm = { email: '', password: '' };
-                    } catch (error) {
-                        console.error('Login error:', error);
-                        this.showNotification(
-                            error.response?.data?.detail || 'Error al iniciar sesión',
-                            'error'
-                        );
-                    }
-                    this.loading = false;
-                },
+        logout() {
+          this.token = null;
+          this.user = null;
+          this.isAuthenticated = false;
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+          this.currentTab = 'login';
+          this.showPqrsForm = false;
+          this.editingPqrs = false;
+          this.showNotification('Sesión cerrada', 'success');
+        },
 
-                async register() {
-                    this.loading = true;
-                    try {
-                        await axios.post('/auth/register', this.registerForm);
-                        this.showNotification('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.', 'success');
-                        this.currentTab = 'login';
-                        
-                        // Limpiar formulario
-                        this.registerForm = { username: '', email: '', password: '' };
-                    } catch (error) {
-                        console.error('Register error:', error);
-                        this.showNotification(
-                            error.response?.data?.detail || 'Error al crear la cuenta',
-                            'error'
-                        );
-                    }
-                    this.loading = false;
-                },
+        // PQRS Functions
+        async fetchPQRS() {
+          try {
+            const response = await axios.get('/pqrs/');
+            this.pqrsList = response.data || [];
+          } catch (error) {
+            console.error('Error fetching PQRS:', error);
+            this.showNotification('Error al cargar PQRS', 'error');
+          }
+        },
 
-                async getCurrentUser() {
-                    try {
-                        const response = await axios.get('/auth/me');
-                        this.user = response.data;
-                        this.isAuthenticated = true;
-                    } catch (error) {
-                        console.error('Get user error:', error);
-                        this.logout();
-                    }
-                },
-
-                logout() {
-                    this.token = null;
-                    this.user = null;
-                    this.isAuthenticated = false;
-                    localStorage.removeItem('token');
-                    delete axios.defaults.headers.common['Authorization'];
-                    this.currentTab = 'login';
-                    this.showNotification('Sesión cerrada', 'success');
-                },
-
-                showNotification(message, type = 'success') {
-                    this.notification = {
-                        show: true,
-                        message,
-                        type
-                    };
-                    setTimeout(() => {
-                        this.hideNotification();
-                    }, 5000);
-                },
-
-                hideNotification() {
-                    this.notification.show = false;
-                },
-
-                formatDate(dateString) {
-                    if (!dateString) return '';
-                    const date = new Date(dateString);
-                    return date.toLocaleDateString('es-ES', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                }
+        async submitPqrs() {
+          this.loading = true;
+          try {
+            if (this.editingPqrs) {
+              await axios.put(`/pqrs/${this.editingPqrs}`, this.pqrsForm);
+              this.showNotification('PQRS actualizada exitosamente!', 'success');
+            } else {
+              await axios.post('/pqrs/', this.pqrsForm);
+              this.showNotification('PQRS enviada exitosamente!', 'success');
             }
+            
+            await this.fetchPQRS();
+            this.cancelPqrsForm();
+          } catch (error) {
+            console.error('Error submitting PQRS:', error);
+            this.showNotification(
+              error.response?.data?.detail || 'Error al procesar PQRS',
+              'error'
+            );
+          }
+          this.loading = false;
+        },
+
+        editPqrs(pqrs) {
+          this.pqrsForm = {
+            nombre_usuario: pqrs.nombre_usuario,
+            email: pqrs.email,
+            tipo: pqrs.tipo,
+            mensaje: pqrs.mensaje
+          };
+          this.editingPqrs = pqrs.id;
+          this.showPqrsForm = true;
+        },
+
+        async deletePqrs(id) {
+          if (confirm('¿Estás seguro de que deseas eliminar este PQRS?')) {
+            try {
+              await axios.delete(`/pqrs/${id}`);
+              this.showNotification('PQRS eliminada exitosamente!', 'success');
+              await this.fetchPQRS();
+            } catch (error) {
+              console.error('Error deleting PQRS:', error);
+              this.showNotification('Error al eliminar PQRS', 'error');
+            }
+          }
+        },
+
+        cancelPqrsForm() {
+          this.showPqrsForm = false;
+          this.editingPqrs = false;
+          this.pqrsForm = {
+            nombre_usuario: '',
+            email: '',
+            tipo: '',
+            mensaje: ''
+          };
+        },
+
+        showNotification(message, type = 'success') {
+          this.notification = {
+            show: true,
+            message,
+            type
+          };
+          setTimeout(() => {
+            this.hideNotification();
+          }, 5000);
+        },
+
+        hideNotification() {
+          this.notification.show = false;
+        },
+
+        formatDate(dateString) {
+          if (!dateString) return '';
+          const date = new Date(dateString);
+          return date.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
         }
-    </script>
+      }
+    }
+  </script>
 </body>
 </html>
