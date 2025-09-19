@@ -1,14 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.auth.router import router as auth_router
-from src.database import Base, engine
-
-# Crear tablas en DB
-Base.metadata.create_all(bind=engine)
+from src.pqrs.router import router as pqrs_router
 
 app = FastAPI(
-    title="Proyecto Integrador API",
-    description="API para el registro de personas",
+    title="Sistema Integrado - PQRS y Autenticación",
+    description="API completa para autenticación de usuarios y gestión de PQRS",
     version="1.0.0"
 )
 
@@ -21,18 +18,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rutas Auth
-app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+# Rutas
+app.include_router(auth_router, prefix="/auth", tags=["Autenticación"])
+app.include_router(pqrs_router, tags=["PQRS"])
 
 @app.get("/")
 def read_root():
     return {
-        "message": "Bienvenido al Proyecto Integrador API",
+        "message": "Sistema Integrado - PQRS y Autenticación",
         "version": "1.0.0",
-        "author": "Juan Valencia, Esneyder Vasquez, Luis Fernando Zuluaga",
-        "grupo": "pap-tarde"
+        "status": "🚀 Funcionando correctamente"
     }
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "database": "connected"}
