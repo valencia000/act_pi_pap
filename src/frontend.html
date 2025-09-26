@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema Integrado - PQRS y Autenticación</title>
+  <title>Sistema Integrado - PQRS con Chatbot IA</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
@@ -70,14 +70,74 @@
     .badge-queja { background: rgba(239, 68, 68, 0.8); color: white; }
     .badge-reclamo { background: rgba(245, 101, 101, 0.8); color: white; }
     .badge-sugerencia { background: rgba(34, 197, 94, 0.8); color: white; }
+    
+    /* Estilos del Chatbot */
+    .chat-container {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .chat-message {
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      border-radius: 1rem;
+      max-width: 80%;
+    }
+    .chat-message.user {
+      margin-left: auto;
+      background: rgba(59, 130, 246, 0.8);
+      color: white;
+    }
+    .chat-message.assistant {
+      margin-right: auto;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      margin: 1rem 0;
+      color: white;
+    }
+    .typing-dots {
+      display: flex;
+      margin-left: 0.5rem;
+    }
+    .typing-dots span {
+      height: 8px;
+      width: 8px;
+      background-color: white;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 2px;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+    .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typing {
+      0%, 80%, 100% { opacity: 0.3; }
+      40% { opacity: 1; }
+    }
+    .chat-input-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: flex-end;
+    }
+    .suggested-pqrs {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body class="min-h-screen">
   <div x-data="app()" class="container mx-auto px-4 py-8">
     <!-- Header -->
     <div class="text-center mb-10">
-      <h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">🚀 Sistema Integrado</h1>
-      <p class="text-white opacity-90 text-lg">Autenticación y PQRS</p>
+      <h1 class="text-5xl font-extrabold text-white drop-shadow-lg mb-2">🤖 Sistema PQRS IA</h1>
+      <p class="text-white opacity-90 text-lg">Chatbot inteligente para crear PQRS automáticamente</p>
     </div>
 
     <!-- Notification -->
@@ -109,11 +169,17 @@
               class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
         🏠 Dashboard
       </button>
+      <button @click="currentTab = 'chatbot'"
+              :disabled="!isAuthenticated"
+              :class="[currentTab === 'chatbot' ? 'tab-active' : '', !isAuthenticated ? 'opacity-50 cursor-not-allowed' : '']"
+              class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
+        🤖 Chatbot PQRS
+      </button>
       <button @click="currentTab = 'pqrs'"
               :disabled="!isAuthenticated"
               :class="[currentTab === 'pqrs' ? 'tab-active' : '', !isAuthenticated ? 'opacity-50 cursor-not-allowed' : '']"
               class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
-        📋 PQRS
+        📋 PQRS Manual
       </button>
     </div>
 
@@ -191,8 +257,8 @@
             </div>
           </div>
           <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-            <button @click="currentTab = 'pqrs'" class="btn-gradient text-white font-bold py-2 px-4 rounded-lg">
-              📋 Ir a PQRS
+            <button @click="currentTab = 'chatbot'" class="btn-gradient text-white font-bold py-2 px-4 rounded-lg">
+              🤖 Chatbot PQRS
             </button>
             <button @click="logout()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
               🚪 Cerrar Sesión
@@ -201,7 +267,12 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="glass-card p-6 text-center text-white">
+          <div class="text-4xl mb-2">🤖</div>
+          <h3 class="text-lg font-bold">IA Integrada</h3>
+          <p class="text-sm opacity-80">Chatbot con Gemini</p>
+        </div>
         <div class="glass-card p-6 text-center text-white">
           <div class="text-4xl mb-2">⚡</div>
           <h3 class="text-lg font-bold">API Activa</h3>
@@ -218,27 +289,92 @@
           <p class="text-sm opacity-80">Sistema integrado</p>
         </div>
       </div>
+    </div>
 
-      <div class="glass-card p-6 text-center">
-        <h3 class="text-xl font-bold text-white mb-4">📖 Documentación de la API</h3>
-        <div class="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-          <a href="http://localhost:8000/docs" target="_blank"
-             class="btn-gradient text-white font-bold py-2 px-6 rounded-lg inline-block">
-            📚 Swagger UI
-          </a>
-          <a href="http://localhost:8000/redoc" target="_blank"
-             class="bg-white bg-opacity-20 hover:bg-opacity-40 text-white font-bold py-2 px-6 rounded-lg inline-block">
-            📖 ReDoc
-          </a>
+    <!-- Chatbot PQRS -->
+    <div x-show="currentTab === 'chatbot'" x-transition class="space-y-6">
+      <div class="glass-card p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white mb-2">🤖 Asistente PQRS IA</h2>
+            <p class="text-white opacity-80">Crea tu PQRS conversando con nuestro chatbot inteligente</p>
+          </div>
+          <button @click="resetChat()" class="btn-gradient text-white font-bold py-2 px-4 rounded-lg mt-4 md:mt-0">
+            🔄 Nueva Conversación
+          </button>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container mb-6 p-4 bg-black bg-opacity-20 rounded-lg" id="chatContainer">
+          <template x-for="message in chatHistory" :key="message.id">
+            <div class="chat-message" :class="message.role">
+              <div class="flex items-start space-x-2">
+                <div class="text-lg" x-text="message.role === 'user' ? '👤' : '🤖'"></div>
+                <div class="flex-1">
+                  <p x-text="message.content" class="whitespace-pre-wrap"></p>
+                  <div class="text-xs opacity-70 mt-1" x-text="formatTime(message.timestamp)"></div>
+                </div>
+              </div>
+            </div>
+          </template>
+          
+          <!-- Typing indicator -->
+          <div x-show="chatLoading" class="typing-indicator">
+            <div class="text-lg">🤖</div>
+            <span>El asistente está escribiendo</span>
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          
+          <!-- Suggested PQRS -->
+          <div x-show="suggestedPqrs" class="suggested-pqrs">
+            <h4 class="font-bold text-white mb-2">✨ PQRS Generado Automáticamente</h4>
+            <div class="space-y-2 text-sm">
+              <p><strong>Tipo:</strong> <span x-text="suggestedPqrs?.tipo"></span></p>
+              <p><strong>Nombre:</strong> <span x-text="suggestedPqrs?.nombre_usuario"></span></p>
+              <p><strong>Email:</strong> <span x-text="suggestedPqrs?.email"></span></p>
+              <p><strong>Mensaje:</strong></p>
+              <div class="bg-black bg-opacity-20 p-2 rounded text-white whitespace-pre-wrap" x-text="suggestedPqrs?.mensaje"></div>
+            </div>
+            <div class="flex space-x-2 mt-4">
+              <button @click="submitGeneratedPqrs()" class="btn-gradient text-white font-bold py-2 px-4 rounded">
+                ✅ Enviar PQRS
+              </button>
+              <button @click="editGeneratedPqrs()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+                ✏️ Editar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="chat-input-container">
+          <input 
+            type="text" 
+            x-model="currentMessage" 
+            @keyup.enter="sendMessage()"
+            :disabled="chatLoading"
+            placeholder="Escribe tu mensaje aquí..."
+            class="flex-1 px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-100"
+          >
+          <button 
+            @click="sendMessage()" 
+            :disabled="chatLoading || !currentMessage.trim()"
+            class="btn-gradient text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50">
+            📤 Enviar
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- PQRS System -->
+    <!-- PQRS Manual System -->
     <div x-show="currentTab === 'pqrs'" x-transition class="space-y-6">
       <div class="glass-card p-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <h2 class="text-2xl font-bold text-white mb-4 md:mb-0">📋 Sistema PQRS</h2>
+          <h2 class="text-2xl font-bold text-white mb-4 md:mb-0">📋 Sistema PQRS Manual</h2>
           <div class="flex space-x-2">
             <button @click="showPqrsForm = !showPqrsForm" 
                     :class="showPqrsForm ? 'bg-red-500 hover:bg-red-600' : 'btn-gradient'"
@@ -340,7 +476,7 @@
           <div x-show="pqrsList.length === 0" class="text-center text-white opacity-80 py-8">
             <div class="text-4xl mb-4">📋</div>
             <p>No hay PQRS registradas aún.</p>
-            <p class="text-sm">Haz clic en "Nuevo PQRS" para crear la primera.</p>
+            <p class="text-sm">Usa el chatbot IA o crea una manualmente.</p>
           </div>
         </div>
       </div>
@@ -358,6 +494,14 @@
         showPqrsForm: false,
         editingPqrs: false,
         pqrsList: [],
+        
+        // Chatbot variables
+        chatHistory: [],
+        currentMessage: '',
+        chatLoading: false,
+        suggestedPqrs: null,
+        chatId: 0,
+        
         notification: {
           show: false,
           message: '',
@@ -392,6 +536,9 @@
           
           // Cargar PQRS al iniciar
           this.fetchPQRS();
+          
+          // Inicializar chatbot
+          this.initializeChat();
         },
 
         setAuthHeader(token) {
@@ -461,6 +608,7 @@
           this.currentTab = 'login';
           this.showPqrsForm = false;
           this.editingPqrs = false;
+          this.resetChat();
           this.showNotification('Sesión cerrada', 'success');
         },
 
@@ -533,6 +681,119 @@
           };
         },
 
+        // Chatbot Functions
+        initializeChat() {
+          this.chatHistory = [
+            {
+              id: this.chatId++,
+              role: 'assistant',
+              content: '¡Hola! 👋 Soy tu asistente IA para crear PQRS. Estoy aquí para ayudarte a formular tu petición, queja, reclamo o sugerencia de manera clara y profesional.\n\n¿En qué puedo ayudarte hoy?',
+              timestamp: new Date()
+            }
+          ];
+        },
+
+        async sendMessage() {
+          if (!this.currentMessage.trim() || this.chatLoading) return;
+
+          const userMessage = {
+            id: this.chatId++,
+            role: 'user',
+            content: this.currentMessage,
+            timestamp: new Date()
+          };
+
+          this.chatHistory.push(userMessage);
+          const messageToSend = this.currentMessage;
+          this.currentMessage = '';
+          this.chatLoading = true;
+
+          // Scroll to bottom
+          this.$nextTick(() => {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          });
+
+          try {
+            const response = await axios.post('/chatbot/chat', {
+              message: messageToSend,
+              conversation_history: this.chatHistory.slice(0, -1).map(msg => ({
+                role: msg.role,
+                content: msg.content,
+                timestamp: msg.timestamp
+              }))
+            });
+
+            const assistantMessage = {
+              id: this.chatId++,
+              role: 'assistant',
+              content: response.data.message,
+              timestamp: new Date()
+            };
+
+            this.chatHistory.push(assistantMessage);
+
+            // Check if PQRS was generated
+            if (response.data.suggested_pqrs) {
+              this.suggestedPqrs = response.data.suggested_pqrs;
+            }
+
+          } catch (error) {
+            console.error('Error sending message:', error);
+            this.showNotification('Error al comunicarse con el chatbot', 'error');
+            
+            const errorMessage = {
+              id: this.chatId++,
+              role: 'assistant',
+              content: 'Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo.',
+              timestamp: new Date()
+            };
+            this.chatHistory.push(errorMessage);
+          }
+
+          this.chatLoading = false;
+          
+          // Scroll to bottom again
+          this.$nextTick(() => {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          });
+        },
+
+        resetChat() {
+          this.chatHistory = [];
+          this.currentMessage = '';
+          this.suggestedPqrs = null;
+          this.chatLoading = false;
+          this.initializeChat();
+        },
+
+        async submitGeneratedPqrs() {
+          if (!this.suggestedPqrs) return;
+
+          this.loading = true;
+          try {
+            await axios.post('/pqrs/', this.suggestedPqrs);
+            this.showNotification('¡PQRS enviada exitosamente!', 'success');
+            await this.fetchPQRS();
+            this.suggestedPqrs = null;
+            this.resetChat();
+          } catch (error) {
+            console.error('Error submitting generated PQRS:', error);
+            this.showNotification('Error al enviar PQRS', 'error');
+          }
+          this.loading = false;
+        },
+
+        editGeneratedPqrs() {
+          if (!this.suggestedPqrs) return;
+          
+          this.pqrsForm = { ...this.suggestedPqrs };
+          this.showPqrsForm = true;
+          this.currentTab = 'pqrs';
+          this.suggestedPqrs = null;
+        },
+
         showNotification(message, type = 'success') {
           this.notification = {
             show: true,
@@ -555,6 +816,14 @@
             year: 'numeric',
             month: 'long',
             day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        },
+
+        formatTime(date) {
+          if (!date) return '';
+          return new Date(date).toLocaleTimeString('es-ES', {
             hour: '2-digit',
             minute: '2-digit'
           });
