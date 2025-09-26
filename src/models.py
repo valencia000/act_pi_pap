@@ -11,7 +11,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     role = Column(String(20), default="user")
     is_active = Column(Boolean, default=True)
-    created_at = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class PQRS(Base):
     __tablename__ = "pqrs"
