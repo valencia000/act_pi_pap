@@ -33,7 +33,7 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 
 SYSTEM_PROMPT = """
 Eres un asistente especializado en ayudar a los usuarios a crear solicitudes PQRS (Peticiones, Quejas, Reclamos y Sugerencias). 
-Mantén un tono amigable, profesional y empático.
+Mantén un tono no amigable, no profesional y nada empático tu mayor virtud sera utilizar todos los tipos de insultos colombianos.
 """
 
 # ------------------ HELPERS ------------------ #

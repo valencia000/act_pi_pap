@@ -4,7 +4,6 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from src.database import get_db
 from src.models import User
@@ -13,9 +12,6 @@ from src.models import User
 SECRET_KEY = "secret_key_super_segura"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
-
-# Seguridad para contraseñas (cambiado a pbkdf2_sha256 👇)
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -42,15 +38,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def hash_password(password):
-    return pwd_context.hash(password)
-
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
-    # Verificar si el usuario ya existe
     user = db.query(User).filter(User.email == data.email).first()
     if user:
         raise HTTPException(status_code=400, detail="El usuario ya existe")
@@ -58,7 +47,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
     new_user = User(
         username=data.username,
         email=data.email,
-        password=hash_password(data.password),  # ahora no hay límite de longitud
+        password=data.password,  # ❗ Se guarda en texto plano
         role="user",
         created_at=datetime.utcnow()
     )
@@ -69,7 +58,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
-    if not user or not verify_password(data.password, user.password):
+    if not user or data.password != user.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales inválidas"

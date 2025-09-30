@@ -11,7 +11,7 @@
   <style>
     /* Fondo animado con gradiente */
     body {
-      background: linear-gradient(-45deg, #667eea, #764ba2, #ff758c, #ff7eb3);
+      background: linear-gradient(-45deg, #ffffff, rgba(0, 0, 0, 0.733));
       background-size: 400% 400%;
       animation: gradientBG 12s ease infinite;
     }
@@ -21,10 +21,10 @@
       100% {background-position: 0% 50%;}
     }
     .glass-card {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.15);
       backdrop-filter: blur(12px);
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(0, 0, 0, 0.25);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .glass-card:hover {
@@ -32,25 +32,25 @@
       box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     }
     .btn-gradient {
-      background: linear-gradient(45deg, #667eea, #764ba2, #ff758c);
+      background: linear-gradient(45deg, #2e2c2c);
       transition: all 0.3s ease;
     }
     .btn-gradient:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(255,255,255,0.4);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
     }
     .tab-active {
-      background: rgba(255,255,255,0.3) !important;
+      background: rgba(0, 0, 0, 0.3) !important;
       border-bottom: 2px solid white;
     }
     input, select, textarea {
       transition: all 0.3s ease;
     }
     input:focus, select:focus, textarea:focus {
-      box-shadow: 0 0 10px rgba(255,255,255,0.6);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
     }
     .pqrs-item {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(5, 5, 5, 0.1);
       backdrop-filter: blur(8px);
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -66,10 +66,10 @@
       font-size: 0.75rem;
       font-weight: bold;
     }
-    .badge-peticion { background: rgba(59, 130, 246, 0.8); color: white; }
-    .badge-queja { background: rgba(239, 68, 68, 0.8); color: white; }
-    .badge-reclamo { background: rgba(245, 101, 101, 0.8); color: white; }
-    .badge-sugerencia { background: rgba(34, 197, 94, 0.8); color: white; }
+    .badge-peticion { background: rgba(211, 75, 159, 0.8); color: rgb(0, 0, 0); }
+    .badge-queja { background: rgba(88, 188, 255, 0.8); color: rgb(0, 0, 0); }
+    .badge-reclamo { background: rgba(191, 228, 29, 0.8); color: rgb(0, 0, 0); }
+    .badge-sugerencia { background: rgba(58, 226, 72, 0.8); color: rgb(0, 0, 0); }
     
     /* Estilos del Chatbot */
     .chat-container {
@@ -84,20 +84,21 @@
     }
     .chat-message.user {
       margin-left: auto;
-      background: rgba(59, 130, 246, 0.8);
-      color: white;
+      background: rgba(253, 253, 253, 0.8);
+      color: rgb(0, 0, 0);
+      border: 1px solid rgba(0, 0, 0, 0.3);
     }
     .chat-message.assistant {
       margin-right: auto;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
       color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(0, 0, 0, 0.3);
     }
     .typing-indicator {
       display: flex;
       align-items: center;
       margin: 1rem 0;
-      color: white;
+      color: rgb(0, 0, 0);
     }
     .typing-dots {
       display: flex;
@@ -106,7 +107,7 @@
     .typing-dots span {
       height: 8px;
       width: 8px;
-      background-color: white;
+      background-color: rgb(101, 160, 236);
       border-radius: 50%;
       display: inline-block;
       margin: 0 2px;
@@ -124,8 +125,8 @@
       align-items: flex-end;
     }
     .suggested-pqrs {
-      background: rgba(34, 197, 94, 0.2);
-      border: 1px solid rgba(34, 197, 94, 0.5);
+      background: rgba(224, 5, 5, 0.2);
+      border: 1px solid rgba(69, 34, 197, 0.5);
       border-radius: 12px;
       padding: 1rem;
       margin-top: 1rem;
@@ -156,18 +157,18 @@
       <button @click="currentTab = 'login'"
               :class="currentTab === 'login' ? 'tab-active' : ''"
               class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
-        🔑 Iniciar Sesión
+         Iniciar Sesión
       </button>
       <button @click="currentTab = 'register'"
               :class="currentTab === 'register' ? 'tab-active' : ''"
               class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
-        📝 Registrarse
+         Registrarse
       </button>
       <button @click="currentTab = 'dashboard'"
               :disabled="!isAuthenticated"
               :class="[currentTab === 'dashboard' ? 'tab-active' : '', !isAuthenticated ? 'opacity-50 cursor-not-allowed' : '']"
               class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
-        🏠 Dashboard
+         Dashboard
       </button>
       <button @click="currentTab = 'chatbot'"
               :disabled="!isAuthenticated"
@@ -179,13 +180,13 @@
               :disabled="!isAuthenticated"
               :class="[currentTab === 'pqrs' ? 'tab-active' : '', !isAuthenticated ? 'opacity-50 cursor-not-allowed' : '']"
               class="py-2 px-4 md:px-6 rounded-lg text-white font-semibold hover:bg-white hover:bg-opacity-20 mb-2 md:mb-0">
-        📋 PQRS Manual
+         PQRS Manual
       </button>
     </div>
 
     <!-- Login -->
     <div x-show="currentTab === 'login'" x-transition class="glass-card p-8 max-w-md mx-auto">
-      <h2 class="text-2xl font-bold text-white mb-6 text-center">🔑 Iniciar Sesión</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 text-center"> Iniciar Sesión</h2>
       <form @submit.prevent="login()" class="space-y-6">
         <div>
           <label class="block text-white text-sm font-medium mb-2">Email</label>
@@ -215,7 +216,7 @@
 
     <!-- Register -->
     <div x-show="currentTab === 'register'" x-transition class="glass-card p-8 max-w-md mx-auto">
-      <h2 class="text-2xl font-bold text-white mb-6 text-center">📝 Crear Cuenta</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 text-center"> Crear Cuenta</h2>
       <form @submit.prevent="register()" class="space-y-6">
         <div>
           <label class="block text-white text-sm font-medium mb-2">Usuario</label>
@@ -248,7 +249,7 @@
       <div class="glass-card p-6">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
           <div class="mb-4 md:mb-0">
-            <h2 class="text-2xl font-bold text-white mb-2">🎉 Bienvenido/a</h2>
+            <h2 class="text-2xl font-bold text-white mb-2"> Bienvenido/a</h2>
             <div x-show="user" class="text-white opacity-90 space-y-1">
               <p><strong>Usuario:</strong> <span x-text="user?.username"></span></p>
               <p><strong>Email:</strong> <span x-text="user?.email"></span></p>
@@ -261,7 +262,7 @@
               🤖 Chatbot PQRS
             </button>
             <button @click="logout()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
-              🚪 Cerrar Sesión
+               Cerrar Sesión
             </button>
           </div>
         </div>
@@ -343,7 +344,7 @@
               <button @click="submitGeneratedPqrs()" class="btn-gradient text-white font-bold py-2 px-4 rounded">
                 ✅ Enviar PQRS
               </button>
-              <button @click="editGeneratedPqrs()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+              <button @click="editGeneratedPqrs()" class="bg-white-500 hover:bg-black-600 text-white font-bold py-2 px-4 rounded">
                 ✏️ Editar
               </button>
             </div>
@@ -382,7 +383,7 @@
               <span x-show="!showPqrsForm">➕ Nuevo PQRS</span>
               <span x-show="showPqrsForm">❌ Cancelar</span>
             </button>
-            <button @click="fetchPQRS()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
+            <button @click="fetchPQRS()" class="bg-white-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">
               🔄 Actualizar
             </button>
           </div>
@@ -396,20 +397,20 @@
               <div>
                 <label class="block text-white text-sm font-medium mb-2">Nombre</label>
                 <input type="text" x-model="pqrsForm.nombre_usuario" required
-                       class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                       class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-black"
                        placeholder="Tu nombre completo">
               </div>
               <div>
                 <label class="block text-white text-sm font-medium mb-2">Email</label>
                 <input type="email" x-model="pqrsForm.email" required
-                       class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                       class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-black"
                        placeholder="tu@email.com">
               </div>
             </div>
             <div>
               <label class="block text-white text-sm font-medium mb-2">Tipo de PQRS</label>
               <select x-model="pqrsForm.tipo" required
-                      class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                      class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-black">
                 <option value="">Selecciona un tipo</option>
                 <option value="Petición">📝 Petición</option>
                 <option value="Queja">😤 Queja</option>
@@ -420,7 +421,7 @@
             <div>
               <label class="block text-white text-sm font-medium mb-2">Mensaje</label>
               <textarea x-model="pqrsForm.mensaje" required rows="4"
-                        class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white"
+                        class="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-black"
                         placeholder="Describe detalladamente tu petición, queja, reclamo o sugerencia..."></textarea>
             </div>
             <div class="flex space-x-4">
@@ -462,11 +463,11 @@
                 </div>
                 <div class="flex space-x-2 mt-4 md:mt-0">
                   <button @click="editPqrs(pqrs)" 
-                          class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded">
+                          class="bg-black-500 hover:bg-blue-600 text-black font-bold py-1 px-3 rounded">
                     ✏️ Editar
                   </button>
                   <button @click="deletePqrs(pqrs.id)" 
-                          class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded">
+                          class="bg-black-500 hover:bg-red-600 text-black font-bold py-1 px-3 rounded">
                     🗑️ Eliminar
                   </button>
                 </div>
